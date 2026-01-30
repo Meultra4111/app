@@ -30,13 +30,9 @@ export const Shop = () => {
       });
     } catch (error) {
       if (error.response?.status === 400) {
-        toast.error('Monedas insuficientes', {
-          description: 'Necesitas más monedas para comprar este ítem'
-        });
+        toast.error('Monedas insuficientes');
       } else {
-        toast.error('Error al comprar', {
-          description: 'Inténtalo de nuevo'
-        });
+        toast.error('Error al comprar');
       }
     }
   };
@@ -71,9 +67,6 @@ export const Shop = () => {
           <h1 className="font-press-start text-2xl md:text-4xl text-[#00FF94] mb-2 neon-glow">
             TIENDA
           </h1>
-          <p className="font-space-mono text-[#AAAAAA]">
-            Mejora tu arsenal y estadísticas
-          </p>
         </div>
 
         <div className="bg-[#121212] border-2 border-[#FF00FF] p-6 mb-8">
@@ -96,13 +89,7 @@ export const Shop = () => {
           <button
             data-testid="tab-items"
             onClick={() => setActiveTab('items')}
-            className={`
-              flex-1 flex items-center justify-center gap-3 py-4 font-press-start border-2 transition-all
-              ${activeTab === 'items'
-                ? 'bg-[#00FF94] text-black border-[#00FF94]'
-                : 'bg-[#1E1E1E] text-white border-[#333333] hover:border-[#00FF94]'
-              }
-            `}
+            className={`flex-1 flex items-center justify-center gap-3 py-4 font-press-start border-2 transition-all ${activeTab === 'items' ? 'bg-[#00FF94] text-black border-[#00FF94]' : 'bg-[#1E1E1E] text-white border-[#333333] hover:border-[#00FF94]'}`}
           >
             <ShoppingBag className="w-5 h-5" />
             <span className="text-sm">ÍTEMS</span>
@@ -111,13 +98,7 @@ export const Shop = () => {
           <button
             data-testid="tab-weapons"
             onClick={() => setActiveTab('weapons')}
-            className={`
-              flex-1 flex items-center justify-center gap-3 py-4 font-press-start border-2 transition-all
-              ${activeTab === 'weapons'
-                ? 'bg-[#00FF94] text-black border-[#00FF94]'
-                : 'bg-[#1E1E1E] text-white border-[#333333] hover:border-[#00FF94]'
-              }
-            `}
+            className={`flex-1 flex items-center justify-center gap-3 py-4 font-press-start border-2 transition-all ${activeTab === 'weapons' ? 'bg-[#00FF94] text-black border-[#00FF94]' : 'bg-[#1E1E1E] text-white border-[#333333] hover:border-[#00FF94]'}`}
           >
             <Sword className="w-5 h-5" />
             <span className="text-sm">ARMAS</span>
@@ -129,27 +110,13 @@ export const Shop = () => {
             const canAfford = player && player.coins >= item.price;
 
             return (
-              <div
-                key={item.item_id}
-                data-testid={`shop-item-${item.item_id}`}
-                className={`
-                  bg-[#121212] border-2 p-6 transition-all
-                  ${canAfford ? 'border-[#00FF94] hover:scale-105' : 'border-[#333333] opacity-60'}
-                  hard-shadow
-                `}
-              >
+              <div key={item.item_id} data-testid={`shop-item-${item.item_id}`} className={`bg-[#121212] border-2 p-6 transition-all ${canAfford ? 'border-[#00FF94] hover:scale-105' : 'border-[#333333] opacity-60'} hard-shadow`}>
                 <div className="mb-4 h-24 bg-[#1E1E1E] border border-[#333333] flex items-center justify-center">
-                  <div className="text-5xl">
-                    {activeTab === 'items' ? '📦' : '⚔️'}
-                  </div>
+                  <div className="text-5xl">{activeTab === 'items' ? '📦' : '⚔️'}</div>
                 </div>
 
-                <h3 className="font-press-start text-sm text-white mb-2">
-                  {item.name}
-                </h3>
-                <p className="font-space-mono text-xs text-[#AAAAAA] mb-4">
-                  {item.description}
-                </p>
+                <h3 className="font-press-start text-sm text-white mb-2">{item.name}</h3>
+                <p className="font-space-mono text-xs text-[#AAAAAA] mb-4">{item.description}</p>
 
                 {Object.keys(item.stats_boost).length > 0 && (
                   <div className="mb-4 space-y-1">
@@ -163,25 +130,14 @@ export const Shop = () => {
                 )}
 
                 <div className="flex items-center justify-between mb-4">
-                  <span className="font-vt323 text-2xl text-[#FFCC00]">
-                    💰 {item.price}
-                  </span>
-                  <span className="font-space-mono text-xs text-[#AAAAAA]">
-                    {item.type}
-                  </span>
+                  <span className="font-vt323 text-2xl text-[#FFCC00]">💰 {item.price}</span>
                 </div>
 
                 <button
                   data-testid={`buy-${item.item_id}`}
                   onClick={() => handlePurchase(item.item_id, item.name, item.price)}
                   disabled={!canAfford}
-                  className={`
-                    w-full font-press-start text-xs py-3 border-2 transition-all
-                    ${canAfford
-                      ? 'bg-[#00FF94] text-black border-black hover:translate-y-1 cursor-pointer'
-                      : 'bg-[#333333] text-[#666666] border-[#1E1E1E] cursor-not-allowed'
-                    }
-                  `}
+                  className={`w-full font-press-start text-xs py-3 border-2 transition-all ${canAfford ? 'bg-[#00FF94] text-black border-black hover:translate-y-1 cursor-pointer' : 'bg-[#333333] text-[#666666] border-[#1E1E1E] cursor-not-allowed'}`}
                 >
                   {canAfford ? 'COMPRAR' : 'SIN FONDOS'}
                 </button>
