@@ -218,6 +218,164 @@ async def update_coins(player_id: str, amount: int):
         updated_player['created_at'] = datetime.fromisoformat(updated_player['created_at'])
     return Player(**updated_player)
 
+# ===== GAME SESSIONS =====
+@api_router.post("/game/session", response_model=GameSession)
+async def create_game_session(session_input: GameSessionCreate):
+    session = GameSession(
+        player_id=session_input.player_id,
+        character_id=session_input.character_id,
+        map_id=session_input.map_id
+    )
+    doc = session.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.game_sessions.insert_one(doc)
+    return session
+
+@api_router.put("/game/session/{session_id}")
+async def update_game_session(session_id: str, update: GameSessionUpdate):
+    session = await db.game_sessions.find_one({"session_id": session_id}, {"_id": 0})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    xp_earned = update.enemies_defeated * 10 + (50 if update.victory else 0)
+    coins_earned = update.enemies_defeated * 5 + (100 if update.victory else 25)
+    
+    await db.game_sessions.update_one(
+        {"session_id": session_id},
+        {"$set": {
+            "score": update.score,
+            "enemies_defeated": update.enemies_defeated,
+            "victory": update.victory,
+            "duration": update.duration,
+            "xp_earned": xp_earned,
+            "coins_earned": coins_earned
+        }}
+    )
+    
+    await add_xp(session['player_id'], xp_earned)
+    await update_coins(session['player_id'], coins_earned)
+    
+    return {"xp_earned": xp_earned, "coins_earned": coins_earned, "message": "Session completed"}
+
+@api_router.get("/game/sessions/{player_id}", response_model=List[GameSession])
+async def get_player_sessions(player_id: str):
+    sessions = await db.game_sessions.find({"player_id": player_id}, {"_id": 0}).to_list(100)
+    for session in sessions:
+        if isinstance(session.get('created_at'), str):
+            session['created_at'] = datetime.fromisoformat(session['created_at'])
+    return [GameSession(**s) for s in sessions]
+
+# ===== ACHIEVEMENTS =====
+@api_router.get("/achievements")
+async def get_achievements():
+    achievements = [
+        {"achievement_id": "first_blood", "title": "Primera Sangre", "description": "Derrota tu primer enemigo", "category": "combat", "icon": "⚔️"},
+        {"achievement_id": "veteran", "title": "Veterano", "description": "Derrota 100 enemigos", "category": "combat", "icon": "🎖️"},
+        {"achievement_id": "unstoppable", "title": "Imparable", "description": "Gana 10 partidas seguidas", "category": "victory", "icon": "🔥"},
+        {"achievement_id": "dlc_unlock", "title": "Historia Desbloqueada", "description": "Desbloquea el DLC 'Mi Historia'", "category": "progression", "icon": "📦"},
+        {"achievement_id": "boss_slayer", "title": "Asesino de Jefes", "description": "Derrota a Thisand", "category": "combat", "icon": "👑"},
+        {"achievement_id": "speed_demon", "title": "Demonio Veloz", "description": "Completa una partida en menos de 2 minutos", "category": "special", "icon": "⚡"},
+        {"achievement_id": "collector", "title": "Coleccionista", "description": "Compra 20 ítems en las tiendas", "category": "shop", "icon": "🛒"},
+        {"achievement_id": "rich", "title": "Rico", "description": "Acumula 5000 monedas", "category": "coins", "icon": "💰"},
+        {"achievement_id": "max_level", "title": "Nivel Máximo", "description": "Alcanza nivel 20", "category": "progression", "icon": "⭐"},
+        {"achievement_id": "explorer", "title": "Explorador", "description": "Juega en los 4 mapas", "category": "exploration", "icon": "🗺️"},
+    ]
+    return achievements
+
+@api_router.get("/achievements/{player_id}")
+async def get_player_achievements(player_id: str):
+    player_achievements = await db.player_achievements.find({"player_id": player_id}, {"_id": 0}).to_list(100)
+    all_achievements = await get_achievements()
+    
+    unlocked_ids = {pa['achievement_id'] for pa in player_achievements}
+    
+    result = []
+    for ach in all_achievements:
+        ach['unlocked'] = ach['achievement_id'] in unlocked_ids
+        result.append(ach)
+    
+    return result
+
+@api_router.post("/achievements/{player_id}/{achievement_id}")
+async def unlock_achievement(player_id: str, achievement_id: str):
+    existing = await db.player_achievements.find_one({
+        "player_id": player_id,
+        "achievement_id": achievement_id
+    }, {"_id": 0})
+    
+    if existing:
+        return {"message": "Achievement already unlocked"}
+    
+    pa = PlayerAchievement(player_id=player_id, achievement_id=achievement_id, unlocked_at=datetime.now(timezone.utc))
+    doc = pa.model_dump()
+    doc['unlocked_at'] = doc['unlocked_at'].isoformat()
+    await db.player_achievements.insert_one(doc)
+    
+    return {"message": "Achievement unlocked!"}
+
+# ===== SHOP =====
+@api_router.get("/shop/items")
+async def get_shop_items():
+    items = [
+        {"item_id": "health_potion", "name": "Poción de Vida", "description": "+50 HP", "price": 100, "type": "consumable", "stats_boost": {"health": 50}},
+        {"item_id": "speed_boots", "name": "Botas de Velocidad", "description": "+2 Velocidad", "price": 250, "type": "equipment", "stats_boost": {"speed": 2}},
+        {"item_id": "shield", "name": "Escudo", "description": "+5 Defensa", "price": 300, "type": "equipment", "stats_boost": {"defense": 5}},
+        {"item_id": "power_gem", "name": "Gema de Poder", "description": "+3 Ataque", "price": 200, "type": "equipment", "stats_boost": {"attack": 3}},
+        {"item_id": "lucky_coin", "name": "Moneda de la Suerte", "description": "x2 monedas en partida", "price": 500, "type": "special", "stats_boost": {}},
+    ]
+    return items
+
+@api_router.get("/shop/weapons")
+async def get_shop_weapons():
+    weapons = [
+        {"item_id": "diamond_sword", "name": "Espada de Diamante", "description": "+10 Ataque", "price": 600, "type": "weapon", "stats_boost": {"attack": 10}},
+        {"item_id": "iron_axe", "name": "Hacha de Hierro", "description": "+8 Ataque, +2 Defensa", "price": 500, "type": "weapon", "stats_boost": {"attack": 8, "defense": 2}},
+        {"item_id": "golden_bow", "name": "Arco Dorado", "description": "+7 Ataque, +3 Velocidad", "price": 550, "type": "weapon", "stats_boost": {"attack": 7, "speed": 3}},
+        {"item_id": "magic_staff", "name": "Bastón Mágico", "description": "+12 Ataque especial", "price": 700, "type": "weapon", "stats_boost": {"attack": 12}},
+        {"item_id": "legendary_hammer", "name": "Martillo Legendario", "description": "+15 Ataque, -1 Velocidad", "price": 900, "type": "weapon", "stats_boost": {"attack": 15, "speed": -1}},
+    ]
+    return weapons
+
+@api_router.post("/shop/purchase")
+async def purchase_item(purchase: PurchaseItem):
+    player = await db.players.find_one({"player_id": purchase.player_id}, {"_id": 0})
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    all_items = await get_shop_items() + await get_shop_weapons()
+    item = next((i for i in all_items if i['item_id'] == purchase.item_id), None)
+    
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    if player['coins'] < item['price']:
+        raise HTTPException(status_code=400, detail="Insufficient coins")
+    
+    await update_coins(purchase.player_id, -item['price'])
+    
+    inventory_item = PlayerInventory(player_id=purchase.player_id, item_id=purchase.item_id)
+    doc = inventory_item.model_dump()
+    doc['purchased_at'] = doc['purchased_at'].isoformat()
+    await db.player_inventory.insert_one(doc)
+    
+    return {"message": "Item purchased successfully", "item": item}
+
+@api_router.get("/shop/inventory/{player_id}")
+async def get_player_inventory(player_id: str):
+    inventory = await db.player_inventory.find({"player_id": player_id}, {"_id": 0}).to_list(100)
+    return inventory
+
+# ===== MAPS =====
+@api_router.get("/maps")
+async def get_maps():
+    maps = [
+        {"id": "roblox", "name": "Roblox World", "theme": "Blocky, Plastic textures", "difficulty": "Easy"},
+        {"id": "minecraft", "name": "Minecraft Biome", "theme": "Voxel, Pixelated nature", "difficulty": "Medium"},
+        {"id": "youtube", "name": "YouTube HQ", "theme": "Red/White, Video screens", "difficulty": "Hard"},
+        {"id": "discord", "name": "Discord Server", "theme": "Blurple, Chat bubbles", "difficulty": "Expert"},
+    ]
+    return maps
+
 # Include the router in the main app
 app.include_router(api_router)
 
