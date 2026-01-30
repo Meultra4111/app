@@ -1,0 +1,168 @@
+{
+  "identity": {
+    "name": "Team Meultra Battle Arena",
+    "aesthetic": "Retro Pixel Art x Modern Gamer Chaos",
+    "tone": "Fun, Chaotic, Meme-centric, High Energy",
+    "target_audience": "Gen Z Gamers (13-25), Roblox/Minecraft fans"
+  },
+  "typography": {
+    "headings": {
+      "font_family": "\"Press Start 2P\", cursive",
+      "weight": "400",
+      "usage": "Main titles, Character names, Game Over screens"
+    },
+    "body": {
+      "font_family": "\"Space Mono\", monospace",
+      "weight": "400",
+      "usage": "Stats, Descriptions, Chat, UI elements"
+    },
+    "ui": {
+      "font_family": "\"VT323\", monospace",
+      "weight": "400",
+      "usage": "HUD numbers, rapid data display"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#050505",
+      "surface": "#121212",
+      "surface_highlight": "#1E1E1E",
+      "primary": "#00FF94",
+      "secondary": "#FF00FF",
+      "accent": "#00FFFF",
+      "danger": "#FF3B30",
+      "warning": "#FFCC00",
+      "text_primary": "#FFFFFF",
+      "text_secondary": "#AAAAAA",
+      "border": "#333333"
+    },
+    "usage": {
+      "primary": "Action buttons, Player Health, 'Ready' states",
+      "secondary": "Enemy Health, 'Locked' items, Glitch effects",
+      "accent": "Mana/Energy, Selected states, Highlights",
+      "background": "Global background (Void Black)",
+      "surface": "Card backgrounds, Modal windows"
+    }
+  },
+  "visual_enhancers": {
+    "borders": {
+      "style": "pixelated",
+      "css": "box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black, 0 4px 0 0 black; margin: 4px;",
+      "description": "Faux-pixel borders using box-shadows or border-image"
+    },
+    "shadows": {
+      "hard": "4px 4px 0px 0px #000000",
+      "neon": "0 0 10px var(--primary), 0 0 20px var(--primary)"
+    },
+    "effects": {
+      "crt_scanline": "Overlay with repeating linear gradient for retro TV look",
+      "glitch": "CSS animation on hover for buttons and titles",
+      "scanlines": "background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%;"
+    }
+  },
+  "layout_strategy": {
+    "grid_system": "Bento Grid (CSS Grid)",
+    "spacing": "Tailwind scale (p-4, p-8, gap-4)",
+    "container": "Max-width 1400px, centered",
+    "z_index": {
+      "background": -1,
+      "game_canvas": 10,
+      "hud": 50,
+      "modal": 100,
+      "toast": 200
+    }
+  },
+  "components": {
+    "Button": {
+      "base": "bg-primary text-black font-press-start uppercase tracking-widest hover:translate-y-1 hover:shadow-none transition-all",
+      "variants": {
+        "primary": "bg-[#00FF94] shadow-[4px_4px_0px_0px_#000000] border-2 border-black",
+        "destructive": "bg-[#FF3B30] text-white shadow-[4px_4px_0px_0px_#000000] border-2 border-black",
+        "outline": "bg-transparent border-2 border-white text-white hover:bg-white hover:text-black"
+      }
+    },
+    "Card": {
+      "style": "bg-surface border-2 border-white/20 p-6 relative overflow-hidden",
+      "decoration": "Corner accents or 'bracket' borders"
+    },
+    "Input": {
+      "style": "bg-black border-2 border-white/50 text-primary font-mono p-4 focus:border-primary focus:ring-0 focus:outline-none placeholder:text-white/30"
+    },
+    "Modal": {
+      "style": "bg-black border-4 border-white shadow-[0_0_50px_rgba(0,255,148,0.2)]"
+    }
+  },
+  "game_data": {
+    "characters": [
+      { "id": "meultra4111", "name": "Meultra4111", "role": "Leader", "desc": "Fuerte y balanceado. Espada de Minecraft.", "color": "#00FF94" },
+      { "id": "olivo_10", "name": "Olivo_10", "role": "Striker", "desc": "Elegante con mazo. Daño pesado.", "color": "#FFFF00" },
+      { "id": "gato", "name": "Gato", "role": "Speedster", "desc": "Rápido, estilo Roblox.", "color": "#FFA500" },
+      { "id": "jhon", "name": "Jhon", "role": "Assassin", "desc": "Sigiloso, espadas negras.", "color": "#FFFFFF" },
+      { "id": "riptor", "name": "Riptor", "role": "Fighter", "desc": "Combate cercano.", "color": "#FF0000" },
+      { "id": "martin", "name": "Martin", "role": "Mage", "desc": "Misterioso, ataques a distancia.", "color": "#A020F0" },
+      { "id": "botsito", "name": "Botsito", "role": "Tank", "desc": "Resistente, forma humanoide.", "color": "#0000FF" },
+      { "id": "brayan", "name": "Brayan", "role": "Beast", "desc": "Salvaje, perro alemán.", "color": "#8B4513" }
+    ],
+    "dlc_characters": [
+      { "id": "thisand", "name": "Thisand", "role": "Boss", "desc": "Aura blanca intensa. Lanza peces.", "locked": true },
+      { "id": "notfik", "name": "Notfik", "role": "Unknown", "desc": "DLC Content", "locked": true },
+      { "id": "nooblord", "name": "Nooblord", "role": "Unknown", "desc": "DLC Content", "locked": true }
+    ],
+    "npcs": [
+      { "id": "henry", "name": "Henryñuy77", "role": "Item Shop", "desc": "Vendedor de ítems (Skin Galaxia)" },
+      { "id": "lorenzo", "name": "Lorenzo13xd", "role": "Weapon Shop", "desc": "Vendedor de armas (Táctico)" },
+      { "id": "mee6", "name": "MEE6", "role": "Trainer", "desc": "Creador de bots (Robot Discord)" },
+      { "id": "davo", "name": "Davo_785", "role": "Map Builder", "desc": "Constructor de mapas" }
+    ],
+    "maps": [
+      { "id": "roblox", "name": "Roblox World", "theme": "Blocky, Plastic textures" },
+      { "id": "minecraft", "name": "Minecraft Biome", "theme": "Voxel, Pixelated nature" },
+      { "id": "youtube", "name": "YouTube HQ", "theme": "Red/White, Video screens" },
+      { "id": "discord", "name": "Discord Server", "theme": "Blurple, Chat bubbles" }
+    ]
+  },
+  "image_urls": {
+    "backgrounds": [
+      {
+        "url": "https://images.unsplash.com/photo-1768877606176-e9a1c70ec776?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA4Mzl8MHwxfHNlYXJjaHwxfHxwaXhlbCUyMGFydCUyMGNpdHklMjBuaWdodCUyMGN5YmVycHVua3xlbnwwfHx8fDE3Njk3OTQyMTh8MA&ixlib=rb-4.1.0&q=85",
+        "category": "landing_hero",
+        "description": "Pixel art city night for main menu background"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1583634852966-130c15654305?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxyZXRybyUyMGFyY2FkZSUyMGdhbWluZyUyMG5lb258ZW58MHx8fHwxNzY5Nzk0MjIzfDA&ixlib=rb-4.1.0&q=85",
+        "category": "arcade_cabinet",
+        "description": "Arcade machine for 'Game Modes' section"
+      }
+    ],
+    "placeholders": {
+      "character": "https://placehold.co/400x600/1a1a1a/00FF94?text=CHARACTER+SPRITE",
+      "map": "https://placehold.co/800x400/1a1a1a/00FFFF?text=MAP+PREVIEW",
+      "item": "https://placehold.co/200x200/1a1a1a/FF00FF?text=ITEM"
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Install 'lucide-react' for icons. Use 'Press Start 2P' from Google Fonts.",
+    "2. THEME: Force DARK MODE. There is no light mode for this game.",
+    "3. COMPONENTS: Do not use default Shadcn styles. Override them with the 'pixelated' aesthetic defined in visual_enhancers.",
+    "4. GAME ENGINE: Use HTML5 Canvas for the 'Arena' page. Keep it simple (2D sprites, basic physics).",
+    "5. NAVIGATION: Create a 'Retro Navbar' that looks like a game HUD.",
+    "6. DATA: Use the 'game_data' object to populate the Character Select and Shop screens.",
+    "7. TESTING: Add 'data-testid' to all interactive elements (buttons, cards, inputs)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Avoid generic 'AI slop' designs. Be bold, use high contrast.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) sparingly, prefer solid pixel borders for this specific project.",
+    "You MUST NOT apply universal transition. Eg: 'transition: all'.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles (or in this case, retro-pixel styles) with interaction animations.",
+    "NEVER use AI assistant Emoji characters for icons.",
+    "Every interaction needs micro-animations - hover states, transitions.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Components MUST use named exports.",
+    "Pages MUST use default exports.",
+    "Use 'sonner' for toasts."
+  ]
+}
