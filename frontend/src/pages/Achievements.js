@@ -18,7 +18,7 @@ export const Achievements = () => {
     setAchievements(achs);
   };
 
-  const categories = ['all', 'combat', 'victory', 'progression', 'special', 'shop', 'coins', 'exploration'];
+  const categories = ['all', 'combat', 'victory', 'progression', 'special', 'shop', 'coins', 'exploration', 'characters'];
 
   const filteredAchievements = filter === 'all'
     ? achievements
