@@ -381,7 +381,9 @@ export const GameArena = () => {
         score: gameState.score,
         enemies_defeated: gameState.enemiesDefeated,
         victory,
-        duration
+        duration,
+        bullets_shot: gameDataRef.current.bulletsShot,
+        special_used: gameDataRef.current.specialUsed
       });
       
       setTimeout(() => {
@@ -392,6 +394,7 @@ export const GameArena = () => {
             enemiesDefeated: gameState.enemiesDefeated,
             xpEarned: result?.xp_earned || 0,
             coinsEarned: result?.coins_earned || 0,
+            achievementsUnlocked: result?.achievements_unlocked || 0,
             duration
           }
         });
