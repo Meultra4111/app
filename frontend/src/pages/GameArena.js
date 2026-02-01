@@ -28,7 +28,9 @@ export const GameArena = () => {
     particles: [],
     keys: {},
     lastTime: 0,
-    startTime: Date.now()
+    startTime: Date.now(),
+    bulletsShot: 0,
+    specialUsed: 0
   });
 
   useEffect(() => {
