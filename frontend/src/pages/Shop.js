@@ -6,14 +6,16 @@ import { toast } from 'sonner';
 
 export const Shop = () => {
   const navigate = useNavigate();
-  const { player, getShopItems, getShopWeapons, purchaseItem } = useGame();
+  const { player, loading, getShopItems, getShopWeapons, purchaseItem } = useGame();
   const [activeTab, setActiveTab] = useState('items');
   const [items, setItems] = useState([]);
   const [weapons, setWeapons] = useState([]);
 
   useEffect(() => {
-    loadShopData();
-  }, []);
+    if (!loading) {
+      loadShopData();
+    }
+  }, [loading]);
 
   const loadShopData = async () => {
     const itemsList = await getShopItems();
