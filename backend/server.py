@@ -97,6 +97,19 @@ class PlayerInventory(BaseModel):
     quantity: int = 1
     purchased_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class PlayerStats(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    player_id: str
+    total_enemies_killed: int = 0
+    total_wins: int = 0
+    total_games: int = 0
+    total_score: int = 0
+    total_bullets_shot: int = 0
+    total_special_used: int = 0
+    total_coins_spent: int = 0
+    characters_played: List[str] = []
+    maps_played: List[str] = []
+
 # ==================== INPUT MODELS ====================
 
 class PlayerCreate(BaseModel):
