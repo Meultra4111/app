@@ -573,6 +573,24 @@ async def get_player_inventory(player_id: str):
     inventory = await db.player_inventory.find({"player_id": player_id}, {"_id": 0}).to_list(100)
     return inventory
 
+@api_router.get("/player/{player_id}/stats")
+async def get_player_stats(player_id: str):
+    stats = await db.player_stats.find_one({"player_id": player_id}, {"_id": 0})
+    if not stats:
+        return {
+            "player_id": player_id,
+            "total_enemies_killed": 0,
+            "total_wins": 0,
+            "total_games": 0,
+            "total_score": 0,
+            "total_bullets_shot": 0,
+            "total_special_used": 0,
+            "total_coins_spent": 0,
+            "characters_played": [],
+            "maps_played": []
+        }
+    return stats
+
 # ===== MAPS =====
 @api_router.get("/maps")
 async def get_maps():
