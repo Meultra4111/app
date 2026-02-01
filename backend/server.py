@@ -267,10 +267,163 @@ async def update_game_session(session_id: str, update: GameSessionUpdate):
         }}
     )
     
-    await add_xp(session['player_id'], xp_earned)
-    await update_coins(session['player_id'], coins_earned)
+    player_id = session['player_id']
+    await add_xp(player_id, xp_earned)
+    await update_coins(player_id, coins_earned)
     
-    return {"xp_earned": xp_earned, "coins_earned": coins_earned, "message": "Session completed"}
+    stats = await db.player_stats.find_one({"player_id": player_id}, {"_id": 0})
+    if not stats:
+        stats = {
+            "player_id": player_id,
+            "total_enemies_killed": 0,
+            "total_wins": 0,
+            "total_games": 0,
+            "total_score": 0,
+            "total_bullets_shot": 0,
+            "total_special_used": 0,
+            "total_coins_spent": 0,
+            "characters_played": [],
+            "maps_played": []
+        }
+    
+    stats["total_enemies_killed"] = stats.get("total_enemies_killed", 0) + update.enemies_defeated
+    stats["total_wins"] = stats.get("total_wins", 0) + (1 if update.victory else 0)
+    stats["total_games"] = stats.get("total_games", 0) + 1
+    stats["total_score"] = stats.get("total_score", 0) + update.score
+    stats["total_bullets_shot"] = stats.get("total_bullets_shot", 0) + update.bullets_shot
+    stats["total_special_used"] = stats.get("total_special_used", 0) + update.special_used
+    
+    if session['character_id'] not in stats.get("characters_played", []):
+        if "characters_played" not in stats:
+            stats["characters_played"] = []
+        stats["characters_played"].append(session['character_id'])
+    
+    if session['map_id'] not in stats.get("maps_played", []):
+        if "maps_played" not in stats:
+            stats["maps_played"] = []
+        stats["maps_played"].append(session['map_id'])
+    
+    await db.player_stats.update_one(
+        {"player_id": player_id},
+        {"$set": stats},
+        upsert=True
+    )
+    
+    achievements_to_unlock = []
+    
+    if stats["total_enemies_killed"] >= 1:
+        achievements_to_unlock.append("first_blood")
+    if stats["total_enemies_killed"] >= 5:
+        achievements_to_unlock.append("kill_5")
+    if stats["total_enemies_killed"] >= 10:
+        achievements_to_unlock.append("kill_10")
+    if stats["total_enemies_killed"] >= 25:
+        achievements_to_unlock.append("kill_25")
+    if stats["total_enemies_killed"] >= 50:
+        achievements_to_unlock.append("kill_50")
+    if stats["total_enemies_killed"] >= 100:
+        achievements_to_unlock.append("kill_100")
+    if stats["total_enemies_killed"] >= 250:
+        achievements_to_unlock.append("kill_250")
+    if stats["total_enemies_killed"] >= 500:
+        achievements_to_unlock.append("kill_500")
+    
+    if stats["total_wins"] >= 1:
+        achievements_to_unlock.append("first_win")
+    if stats["total_wins"] >= 5:
+        achievements_to_unlock.append("win_5")
+    if stats["total_wins"] >= 10:
+        achievements_to_unlock.append("win_10")
+    if stats["total_wins"] >= 25:
+        achievements_to_unlock.append("win_25")
+    
+    if stats["total_games"] >= 10:
+        achievements_to_unlock.append("play_10_games")
+    if stats["total_games"] >= 25:
+        achievements_to_unlock.append("play_25_games")
+    if stats["total_games"] >= 50:
+        achievements_to_unlock.append("play_50_games")
+    
+    if stats["total_score"] >= 10000:
+        achievements_to_unlock.append("total_score_10k")
+    if stats["total_score"] >= 50000:
+        achievements_to_unlock.append("total_score_50k")
+    
+    if stats["total_special_used"] >= 10:
+        achievements_to_unlock.append("special_x10")
+    if stats["total_special_used"] >= 50:
+        achievements_to_unlock.append("special_x50")
+    
+    if stats["total_bullets_shot"] >= 100:
+        achievements_to_unlock.append("bullets_100")
+    if stats["total_bullets_shot"] >= 500:
+        achievements_to_unlock.append("bullets_500")
+    
+    if update.victory and update.duration < 90:
+        achievements_to_unlock.append("speed_demon")
+    
+    if len(stats.get("characters_played", [])) >= 8:
+        achievements_to_unlock.append("all_chars")
+    
+    if len(stats.get("maps_played", [])) >= 4:
+        achievements_to_unlock.append("all_maps")
+    
+    if "roblox" in stats.get("maps_played", []):
+        achievements_to_unlock.append("map_roblox")
+    if "minecraft" in stats.get("maps_played", []):
+        achievements_to_unlock.append("map_minecraft")
+    if "youtube" in stats.get("maps_played", []):
+        achievements_to_unlock.append("map_youtube")
+    if "discord" in stats.get("maps_played", []):
+        achievements_to_unlock.append("map_discord")
+    
+    if update.victory:
+        char_id = session['character_id']
+        if char_id == "meultra4111":
+            achievements_to_unlock.append("meultra_win")
+        elif char_id == "olivo_10":
+            achievements_to_unlock.append("olivo_win")
+        elif char_id == "gato":
+            achievements_to_unlock.append("gato_win")
+        elif char_id == "jhon":
+            achievements_to_unlock.append("jhon_win")
+    
+    player = await db.players.find_one({"player_id": player_id}, {"_id": 0})
+    if player:
+        if player.get("level", 1) >= 5:
+            achievements_to_unlock.append("level_5")
+        if player.get("level", 1) >= 10:
+            achievements_to_unlock.append("level_10")
+            achievements_to_unlock.append("dlc_unlock")
+        if player.get("level", 1) >= 15:
+            achievements_to_unlock.append("level_15")
+        if player.get("level", 1) >= 20:
+            achievements_to_unlock.append("level_20")
+        
+        if player.get("coins", 0) >= 1000:
+            achievements_to_unlock.append("coins_1000")
+        if player.get("coins", 0) >= 2500:
+            achievements_to_unlock.append("coins_2500")
+        if player.get("coins", 0) >= 5000:
+            achievements_to_unlock.append("coins_5000")
+    
+    for ach_id in achievements_to_unlock:
+        existing = await db.player_achievements.find_one({
+            "player_id": player_id,
+            "achievement_id": ach_id
+        })
+        if not existing:
+            pa = PlayerAchievement(player_id=player_id, achievement_id=ach_id, unlocked_at=datetime.now(timezone.utc))
+            doc = pa.model_dump()
+            doc['unlocked_at'] = doc['unlocked_at'].isoformat()
+            await db.player_achievements.insert_one(doc)
+    
+    return {
+        "xp_earned": xp_earned,
+        "coins_earned": coins_earned,
+        "achievements_unlocked": len(achievements_to_unlock),
+        "message": "Session completed"
+    }
 
 @api_router.get("/game/sessions/{player_id}", response_model=List[GameSession])
 async def get_player_sessions(player_id: str):
