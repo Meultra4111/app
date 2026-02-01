@@ -5,13 +5,15 @@ import { ArrowLeft, Lock, Check } from 'lucide-react';
 
 export const Achievements = () => {
   const navigate = useNavigate();
-  const { getAchievements } = useGame();
+  const { player, loading, getAchievements } = useGame();
   const [achievements, setAchievements] = useState([]);
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    loadAchievements();
-  }, []);
+    if (!loading && player) {
+      loadAchievements();
+    }
+  }, [loading, player]);
 
   const loadAchievements = async () => {
     const achs = await getAchievements();
