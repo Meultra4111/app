@@ -62,10 +62,18 @@ export const GameOver = () => {
         </div>
 
         <div className="bg-gradient-to-r from-[#00FF94] to-[#00FFFF] p-1 mb-8">
-          <div className="bg-[#121212] p-6 text-center">
-            <div className="flex items-center justify-center gap-4 font-vt323 text-3xl">
-              <Coins className="w-8 h-8 text-[#FFCC00]" />
-              <span className="text-[#FFCC00]" data-testid="coins-earned">+{coinsEarned} MONEDAS</span>
+          <div className="bg-[#121212] p-6">
+            <div className="flex items-center justify-center gap-8 font-vt323 text-3xl">
+              <div className="flex items-center gap-2">
+                <Coins className="w-8 h-8 text-[#FFCC00]" />
+                <span className="text-[#FFCC00]" data-testid="coins-earned">+{coinsEarned}</span>
+              </div>
+              {achievementsUnlocked > 0 && (
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-8 h-8 text-[#FF00FF]" />
+                  <span className="text-[#FF00FF]" data-testid="achievements-unlocked">+{achievementsUnlocked} Logros</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
