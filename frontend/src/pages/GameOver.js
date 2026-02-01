@@ -12,6 +12,7 @@ export const GameOver = () => {
     enemiesDefeated = 0,
     xpEarned = 0,
     coinsEarned = 0,
+    achievementsUnlocked = 0,
     duration = 0
   } = location.state || {};
 
