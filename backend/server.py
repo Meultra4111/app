@@ -125,6 +125,8 @@ class GameSessionUpdate(BaseModel):
     enemies_defeated: int
     victory: bool
     duration: int
+    bullets_shot: int = 0
+    special_used: int = 0
 
 class PurchaseItem(BaseModel):
     player_id: str
