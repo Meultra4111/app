@@ -130,6 +130,8 @@ export const GameArena = () => {
       color: character.color,
       isPlayer: true
     });
+    
+    gameDataRef.current.bulletsShot++;
   };
 
   const useSpecialAbility = () => {
@@ -146,6 +148,8 @@ export const GameArena = () => {
         createParticles(enemy.x, enemy.y, character.color);
       }
     });
+    
+    gameDataRef.current.specialUsed++;
   };
 
   const spawnEnemies = () => {
