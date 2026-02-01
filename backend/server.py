@@ -566,7 +566,47 @@ async def purchase_item(purchase: PurchaseItem):
     doc['purchased_at'] = doc['purchased_at'].isoformat()
     await db.player_inventory.insert_one(doc)
     
-    return {"message": "Item purchased successfully", "item": item}
+    stats = await db.player_stats.find_one({"player_id": purchase.player_id}, {"_id": 0})
+    if not stats:
+        stats = {"player_id": purchase.player_id, "total_coins_spent": 0}
+    
+    stats["total_coins_spent"] = stats.get("total_coins_spent", 0) + item['price']
+    await db.player_stats.update_one(
+        {"player_id": purchase.player_id},
+        {"$set": {"total_coins_spent": stats["total_coins_spent"]}},
+        upsert=True
+    )
+    
+    inventory_count = await db.player_inventory.count_documents({"player_id": purchase.player_id})
+    
+    achievements_to_unlock = []
+    if inventory_count >= 1:
+        achievements_to_unlock.append("first_purchase")
+    if inventory_count >= 5:
+        achievements_to_unlock.append("buy_5")
+    if inventory_count >= 10:
+        achievements_to_unlock.append("buy_10")
+    if inventory_count >= 20:
+        achievements_to_unlock.append("buy_20")
+    
+    if item['type'] == 'weapon':
+        achievements_to_unlock.append("buy_weapon")
+    
+    if stats["total_coins_spent"] >= 1000:
+        achievements_to_unlock.append("spend_1000")
+    
+    for ach_id in achievements_to_unlock:
+        existing = await db.player_achievements.find_one({
+            "player_id": purchase.player_id,
+            "achievement_id": ach_id
+        })
+        if not existing:
+            pa = PlayerAchievement(player_id=purchase.player_id, achievement_id=ach_id, unlocked_at=datetime.now(timezone.utc))
+            doc = pa.model_dump()
+            doc['unlocked_at'] = doc['unlocked_at'].isoformat()
+            await db.player_achievements.insert_one(doc)
+    
+    return {"message": "Item purchased successfully", "item": item, "achievements_unlocked": len(achievements_to_unlock)}
 
 @api_router.get("/shop/inventory/{player_id}")
 async def get_player_inventory(player_id: str):
